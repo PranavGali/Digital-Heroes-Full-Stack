@@ -19,6 +19,16 @@ const app = express();
 app.use(cors({ origin: '*' })); // Allow cross-origin requests from frontends
 app.use(express.json());
 
+// Welcome Route
+app.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'Welcome to HeroCRM API Gateway.',
+    version: '1.0.0',
+    status: 'online',
+  });
+});
+
 // API Base Check
 app.get('/api/health', (req, res) => {
   res.status(200).json({ success: true, status: 'healthy', timestamp: new Date() });
