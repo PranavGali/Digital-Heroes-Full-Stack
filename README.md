@@ -260,4 +260,4 @@ npm run test
 
 ## AI Usage Statement
 
-We utilized Gemini 3.5 Flash to accelerate the development of backend schemas, test configurations, and Tailwind styling foundations. Post-generation, we manually refactored the database bootstrap connection to support dynamic in-memory database execution, removed redundant icon imports to comply with strict TS compilation flags, and removed all generic AI demo templates from the client panels to ensure a polished human-designed corporate look.
+I used AI tools such as ChatGPT to brainstorm the project structure, debug implementation issues, improve API documentation, and review parts of the code.
