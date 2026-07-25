@@ -9,6 +9,7 @@ import { Activity } from './models/Activity';
 dotenv.config();
 
 const PORT = process.env.PORT || 5000;
+let cachedConnection: typeof mongoose | null = null;
 
 async function autoSeed() {
   try {
@@ -154,10 +155,13 @@ async function autoSeed() {
   }
 }
 
-async function startServer() {
+async function connectDb() {
+  if (cachedConnection) {
+    return cachedConnection;
+  }
+
   let mongoUri = process.env.MONGODB_URI;
 
-  // Smart fallback: if no custom connection string is detected, launch in-memory MongoDB
   if (!mongoUri) {
     console.log('⚠️  No MONGODB_URI detected. Launching automated in-memory MongoDB fallback...');
     try {
@@ -172,19 +176,27 @@ async function startServer() {
   }
 
   try {
-    await mongoose.connect(mongoUri);
+    cachedConnection = await mongoose.connect(mongoUri);
     console.log('Successfully connected to MongoDB.');
-    
-    // Run the auto-seeding check
     await autoSeed();
-
-    app.listen(PORT, () => {
-      console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-    });
   } catch (error) {
     console.error('Error connecting to MongoDB:', error);
-    process.exit(1);
+    if (!process.env.VERCEL) {
+      process.exit(1);
+    }
   }
+  return cachedConnection;
 }
 
-startServer();
+// Establish DB connection on bootstrap
+connectDb();
+
+// Standalone listener for local dev environments
+if (!process.env.VERCEL) {
+  app.listen(PORT, () => {
+    console.log(`Server is running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  });
+}
+
+// Export default app for Vercel Serverless runtime mount
+export default app;
